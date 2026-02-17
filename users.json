@@ -1,0 +1,14 @@
+{
+	"users": [
+		{
+			"username": "admin",
+			"email": "admin@example.com",
+			"access_level": 100
+		},
+		{
+			"username": "user1",
+			"email": "user1@example.com",
+			"access_level": 10
+		}
+	]
+}
