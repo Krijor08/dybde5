@@ -1,13 +1,19 @@
-mod users;
-mod logger;
+mod bashrun;
 mod ipchecker;
+mod logger;
+mod users;
 
-use std::io;
 use users::User;
 use logger::Message;
-use users::{get_users, login};
-use logger::logger;
+
+use std::io;
+
+use bashrun::run_script;
 use ipchecker::ip_checker;
+use logger::logger;
+use users::{get_users, login};
+
+
 
 fn main() {
 	let users: Vec<User> = get_users().unwrap();
@@ -53,6 +59,14 @@ fn main() {
 			level: 400,
 		};
 		logger(&fail);
+	}
+
+	if let Err(e) = run_script() {
+		let error_msg: Message = Message {
+			content: format!("Failed to run script: {}", e),
+			level: 500,
+		};
+		logger(&error_msg);
 	}
 }
 
