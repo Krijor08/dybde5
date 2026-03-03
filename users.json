@@ -1,6 +1,11 @@
 {
 	"users": [
 		{
+			"username": "guest",
+			"email": "",
+			"access_level": 0
+		},
+		{
 			"username": "admin",
 			"email": "admin@example.com",
 			"access_level": 100
@@ -14,11 +19,6 @@
 			"username": "user2",
 			"email": "user2@example.com",
 			"access_level": 5
-		},
-		{
-			"username": "guest",
-			"email": "",
-			"access_level": 0
 		}
 	]
 }

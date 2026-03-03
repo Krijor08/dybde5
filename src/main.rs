@@ -28,6 +28,10 @@ fn main() {
 	};
 	logger(&msg);
 
+	let users: Vec<User> = get_users().unwrap();
+
+	let mut current_user: User = get_users().unwrap()[0].clone();
+
 	loop {
 		println!("\nEnter command:");
 		let mut command: String = String::new();
@@ -36,15 +40,7 @@ fn main() {
 			.expect("Failed to read line");
 
 		let command: &str = command.trim();
-
-		let users: Vec<User> = get_users().unwrap();
-		
-		let mut current_user: User = User {
-			username: String::from(""),
-			email: String::from(""),
-			access_level: 0,
-		};
-
+	
 		match command {
 			"ip" => {
 				if check_access(&current_user, 10) {
@@ -82,7 +78,6 @@ fn main() {
 			},
 			_ => println!("Unknown command. Type 'help' for a list of commands."),
 		}
-		println!("Current user: {} (Access level: {})", current_user.username, current_user.access_level);
 	}
 
 	fn check_access(current_user: &User, required_level: u8) -> bool {
