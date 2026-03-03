@@ -21,9 +21,6 @@ pub fn run_ip_script() -> io::Result<()> {
 
 	let output = Command::new(format!("bash"))
 		.arg(script_path.display().to_string())
-		.arg("arg1")
-		.arg("arg2")
-		.arg("arg3")
 		.output()?;
 
 	if output.status.success() {
