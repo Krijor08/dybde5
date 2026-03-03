@@ -5,7 +5,7 @@ use serde_json;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct User {
  	pub(crate) username: String,
- 	email: String,
+ 	pub(crate) email: String,
  	pub(crate) access_level: u8,
 }
 
@@ -35,6 +35,21 @@ pub fn login(users: &[User]) -> User {
 			.expect("Failed to read line");
 
 		let username: &str = username.trim();
+
+		if username.is_empty() {
+			println!("Username cannot be empty. Please try again.\n");
+			continue;
+		}
+
+		if username == "cancel" {
+			println!("Login cancelled. Exiting program.");
+			return User {
+				username: String::from(""),
+				email: String::from(""),
+				access_level: 0,
+			};
+		}
+
 		for user in users {
 			if user.username == username {
 				return user.clone();

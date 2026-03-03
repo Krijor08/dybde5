@@ -9,6 +9,16 @@
 			"username": "user1",
 			"email": "user1@example.com",
 			"access_level": 10
+		},
+		{
+			"username": "user2",
+			"email": "user2@example.com",
+			"access_level": 5
+		},
+		{
+			"username": "guest",
+			"email": "",
+			"access_level": 0
 		}
 	]
 }

@@ -2,8 +2,8 @@ use std::process::{Command};
 use std::path::Path;
 use std::io;
 
-pub fn run_script() -> io::Result<()> {
-	let script_path = Path::new("./Scripts/asdf.sh");
+pub fn run_ip_script() -> io::Result<()> {
+	let script_path = Path::new("./Scripts/ip.sh");
 	if !script_path.exists() {
 		eprintln!("Script not found: {}", script_path.display());
 		return Ok(());
