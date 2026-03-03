@@ -2,6 +2,8 @@ use std::io::stdin;
 use serde::{Deserialize, Serialize};
 use serde_json;
 
+use crate::logger;
+
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct User {
  	pub(crate) username: String,
@@ -52,6 +54,10 @@ pub fn login(users: &[User]) -> User {
 
 		for user in users {
 			if user.username == username {
+				logger(&crate::logger::Message {
+					content: format!("User '{}' logged in successfully.", username),
+					level: 200,
+				});
 				return user.clone();
 			}
 		};
