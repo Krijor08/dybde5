@@ -11,7 +11,7 @@ pub fn run_ip_script() -> io::Result<()> {
 		println!("Running script: {}", script_path.display());
 	}
 
-	let output = Command::new(format!("bash {}", script_path.display()))
+	let output = Command::new(format!("sudo bash {}", script_path.display()))
 		.arg("arg1")
 		.arg("arg2")
 		.arg("arg3")
