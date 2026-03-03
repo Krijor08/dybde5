@@ -49,14 +49,14 @@ fn main() {
 			},
 			"login" => 	 current_user = login(&users),
 			"script" => {
-				if os_type != "linux" {
-					let msg: Message = Message {
-						content: String::from("Script execution is only supported on Linux."),
-						level: 400,
-					};
-				logger(&msg);
-				return;
-				}
+				// if os_type != "linux" {
+				// 	let msg: Message = Message {
+				// 		content: String::from("Script execution is only supported on Linux."),
+				// 		level: 400,
+				// 	};
+				// logger(&msg);
+				// return;
+				// }
 				if check_access(&current_user, 50) {
 					if let Err(e) = run_ip_script() {
 						let msg: Message = Message {
