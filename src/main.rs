@@ -47,8 +47,8 @@ fn main() {
 					ip();
 				}
 			},
-			"login" => 	 current_user = login(&users),
-			"script" => {
+			"login"	 | "l" => 	 current_user = login(&users),
+			"script" | "s" => {
 				// if os_type != "linux" {
 				// 	let msg: Message = Message {
 				// 		content: String::from("Script execution is only supported on Linux."),
@@ -67,8 +67,8 @@ fn main() {
 					}
 				}
 			},
-			"help" => println!("Available commands: ip, login, script, help, exit"),
-			"exit" => {
+			"help"	| "h" => println!("Available commands: ip, login, script, help, exit"),
+			"exit"	| "e" => {
 				let msg: Message = Message {
 					content: String::from("Exiting program."),
 					level: 102,

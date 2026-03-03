@@ -3,7 +3,7 @@ use std::path::Path;
 use std::io;
 
 pub fn run_ip_script() -> io::Result<()> {
-	let script_path = Path::new(".\\scripts\\ipscan");
+	let script_path = Path::new("scripts/ipscan");
 	if !script_path.exists() {
 		eprintln!("Script not found: {}", script_path.display());
 		return Ok(());
