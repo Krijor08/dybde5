@@ -1,0 +1,32 @@
+#!/etc/bash
+
+#"ifconfig eno1 | grep "inet " | cut -d " " -f 10"
+
+# ping and print only ip address
+count=0
+network=$(ifconfig eno1 | grep "inet " | cut -d " " -f 10)
+
+echo -e "\e[36mWelcome to IP scanner!\e[0m"
+
+search() {
+  echo -e "\e[32mYour address is:\e[0m"
+  echo -e "\e[31m$network\e[0m"
+  echo -e "\e[0mNow searching for addresses on the network: \e[35m${network%.*}\e[0m" #"\e[35${network%.*}\e[0m")
+  sleep 2.5
+}
+
+scan() {
+  for ip in {1..254}; do
+
+    ping -c 1 "${network%.*}.$ip" | grep "64 bytes" | cut -d " " -f 4 | tr -d ":" &
+
+    ((count += 1))
+  done
+}
+
+search
+wait
+scan
+wait
+
+echo -e "\e[33mscanned: $count addresses\e[0m"
