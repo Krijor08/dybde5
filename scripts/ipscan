@@ -11,7 +11,7 @@ echo -e "\e[36mWelcome to IP scanner!\e[0m"
 search() {
   echo -e "\e[32mYour address is:\e[0m"
   echo -e "\e[31m$network\e[0m"
-  echo -e "\e[0mNow searching for addresses on the network: \e[35m${network%.*}\e[0m" #"\e[35${network%.*}\e[0m")
+  echo -e "\e[0mNow searching for addresses on the network: \e[35m${network%.*}\e[0m" #"\e[35${network%.*}\e[0m") - this removes the last part of the ip. so that only 192.168.20 is left
   sleep 2.5
 }
 
