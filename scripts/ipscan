@@ -4,7 +4,7 @@
 
 # ping and print only ip address
 count=0
-#network=$(ifconfig eno1 | grep "inet " | cut -d " " -f 10) # <--- This only works with "net-tools" and only if youre using eno1. not prctical.
+#network=$(ifconfig eno1 | grep "inet " | cut -d " " -f 10) # <--- This only works with "net-tools" and only if you're using eno1. Not practical.
 network=$(ip route get 1.1.1.1 | grep -oP "src \K\S+") # <--- This is supposed to see what you use, like: eth0, wlan0, enp3s0, etc.
 
 echo -e "\e[36mWelcome to IP scanner!\e[0m"
