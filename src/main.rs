@@ -19,7 +19,7 @@ async fn main() {
 	let os_type: String = consts::OS.to_string();
 	let msg: Message = Message {
 		content: format!("Running on OS: {}", os_type),
-		level: 101,
+		level: 100,
 	};
 	logger(&msg);
 
