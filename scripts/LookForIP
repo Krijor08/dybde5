@@ -4,7 +4,8 @@
 ip_array=()
 count=0
 #this one look scary, but it's just cutting the result of running "ifcinfig eno1" to only display the ip
-network=$(ifconfig eno1 | grep "inet " | cut -d " " -f 10)
+#network=$(ifconfig eno1 | grep "inet " | cut -d " " -f 10) # <--- This only woks with "net-tools" and olnly if you're using eno1. not practical
+network=$(ip route get 1.1.1.1 | grep -oP "src \K\S+") # This is supposed to see what you use, Like: eth0, wlan0, enp3s0, etc.
 
 #cool welcome message in a nice cyan color
 echo -e "\e[36mWelcome to IP scanner!\e[0m"

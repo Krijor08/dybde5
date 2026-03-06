@@ -1,1 +1,62 @@
+# ==========================================================
+# GLOBALE REGLER (Viktig for undermapper!)
+# ==========================================================
+
+# Ignorerer disse mappene uansett hvor de ligger i prosjektet
+**/[Bb]in/
+**/[Oo]bj/
+**/[Tt]arget/
+**/.vs/
+**/.vscode/
+
+# Spesifikke cache-filer fra bildene dine
+**/project.nuget.cache
+**/project.assets.json
+
+# ==========================================================
+# .NET / C# REGLER
+# ==========================================================
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+bld/
+
+# Files built by Visual Studio
+*.ilk
+*.pdb
+*.exp
+*.lib
+*.exe
+*.dll
+*.tmp
+*.log
+
+# NuGet Packages
+*.nupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+
+# ==========================================================
+# RUST REGLER
+# ==========================================================
 /target
+Cargo.lock
+
+# ==========================================================
+# OS / DIVERSE
+# ==========================================================
+.DS_Store
+Thumbs.db
+*.swp
+.env
+dybde5.sln
