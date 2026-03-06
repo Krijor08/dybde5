@@ -1,4 +1,5 @@
 mod bashrun;
+mod help;
 mod ipchecker;
 mod logger;
 mod users;
@@ -9,7 +10,8 @@ use logger::Message;
 use std::{env::consts, io::stdin};
 use tokio;
 
-use bashrun::run_ip_script;
+use bashrun::run_script;
+use help::help;
 use ipchecker::ip;
 use logger::logger;
 use users::{get_users, login};
@@ -61,7 +63,7 @@ async fn main() {
 				return;
 				}
 				if check_access(&current_user, 50) {
-					if let Err(e) = run_ip_script().await {
+					if let Err(e) = run_script().await {
 						let msg: Message = Message {
 							content: format!("Failed to run script: {}", e),
 							level: 500,
@@ -71,7 +73,7 @@ async fn main() {
 				}
 			},
 
-			"help"	| "h" => println!("Available commands: ip, login, script, help, exit"),
+			"help"	| "h" => help(),
 
 			"exit"	| "e" => {
 				let msg: Message = Message {
