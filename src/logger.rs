@@ -6,6 +6,7 @@ pub struct Message {
 pub fn logger(message: &Message) {
 	match message.level {
 		100 => println!("[INFO]: {}", message.content),
+		101 => println!("[OUTPUT]: {}", message.content),
 		102 => println!("[PROCESSING]: {}", message.content),
 		200 => println!("[OK]: {}", message.content),
 		201 => println!("[CREATED]: {}", message.content),
