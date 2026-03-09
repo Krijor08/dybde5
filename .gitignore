@@ -60,3 +60,4 @@ Thumbs.db
 *.swp
 .env
 dybde5.sln
+users.json
