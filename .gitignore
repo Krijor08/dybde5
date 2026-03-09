@@ -1,20 +1,5 @@
 # ==========================================================
-# GLOBALE REGLER (Viktig for undermapper!)
-# ==========================================================
-
-# Ignorerer disse mappene uansett hvor de ligger i prosjektet
-**/[Bb]in/
-**/[Oo]bj/
-**/[Tt]arget/
-**/.vs/
-**/.vscode/
-
-# Spesifikke cache-filer fra bildene dine
-**/project.nuget.cache
-**/project.assets.json
-
-# ==========================================================
-# .NET / C# REGLER
+# .NET / C# RULES
 # ==========================================================
 
 # User-specific files
@@ -47,17 +32,34 @@ bld/
 !**/[Pp]ackages/build/
 
 # ==========================================================
-# RUST REGLER
+# RUST RULES
 # ==========================================================
 /target
 Cargo.lock
 
 # ==========================================================
-# OS / DIVERSE
+# OS / MISC RULES
 # ==========================================================
 .DS_Store
 Thumbs.db
 *.swp
 .env
+
+# ==========================================================
+# FOLDER AND FILE RULES
+# ==========================================================
+
+# Ignore these folders and their contents
+**/[Bb]in/
+**/[Oo]bj/
+**/[Tt]arget/
+**/.vs/
+**/.vscode/
+
+# Cache-files
+**/project.nuget.cache
+**/project.assets.json
+
+# Ignore these specific files
 dybde5.sln
 users.json
