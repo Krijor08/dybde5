@@ -45,6 +45,17 @@ async fn main() {
 		let command: &str = command.trim();
 	
 		match command {
+			"exit"	| "e" => {
+				let msg: Message = Message {
+					content: String::from("Exiting program."),
+					level: 102,
+				};
+				logger(&msg);
+				return;
+			},
+			
+			"help"	| "h" => help(),
+
 			"ip" => {
 				if check_access(&current_user, 10) {
 					ip();
@@ -71,17 +82,6 @@ async fn main() {
 						logger(&msg);
 					}
 				}
-			},
-
-			"help"	| "h" => help(),
-
-			"exit"	| "e" => {
-				let msg: Message = Message {
-					content: String::from("Exiting program."),
-					level: 102,
-				};
-				logger(&msg);
-				return;
 			},
 
 			_ => println!("Unknown command. Type 'help' for a list of commands."),

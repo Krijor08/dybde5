@@ -63,7 +63,7 @@ pub async fn run_script() -> io::Result<()> {
 		let reader = io::BufReader::new(stdout);
 		for line in reader.lines().flatten() {
 			logger(&Message {
-				content: format!("[Script output]: {}", line),
+				content: format!("{}", line),
 				level: 101,
 			});
 		}
