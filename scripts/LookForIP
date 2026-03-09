@@ -1,21 +1,146 @@
 #!/etc/bash
 
 #global shit like array and variables
-ip_array=()
 count=0
+red="\e[31m"
+green="\e[32m"
+purple="\e[35m"
+cyan="\e[36m"
+blank="\e[0m"
+
 #this one look scary, but it's just cutting the result of running "ifcinfig eno1" to only display the ip
 #network=$(ifconfig eno1 | grep "inet " | cut -d " " -f 10) # <--- This only woks with "net-tools" and olnly if you're using eno1. not practical
-network=$(ip route get 1.1.1.1 | grep -oP "src \K\S+") # This is supposed to see what you use, Like: eth0, wlan0, enp3s0, etc.
+network=$(ip route get 1.1.1.1 | grep -oP "src \K\S+") # This is supposed to see what you use, Like: eth0, wlan0, enp3s0,
+
+bigtext=('
+  mmmmmm   mmmmmm                                                                         
+  ""##""   ##""""#m                                                                       
+    ##     ##    ##  mm#####m   m#####m   m#####m  ##m####m  ##m####m   m####m    ##m#### 
+    ##     ######"   ##mmmm "  ##"    "   " mmm##  ##"   ##  ##"   ##  ##mmmm##   ##"     
+    ##     ##         """"##m  ##        m##"""##  ##    ##  ##    ##  ##""""""   ##      
+  mm##mm   ##        #mmmmm##  "##mmmm#  ##mmm###  ##    ##  ##    ##  "##mmmm#   ##      
+  """"""   ""         """"""     """""    """" ""  ""    ""  ""    ""    """""    "" 
+'
+  # ----------------------------------------------------------------------------------------
+  '
+  _____ _____                                     
+ |_   _|  __ \                                    
+   | | | |__) |__  ___ __ _ _ __  _ __   ___ _ __ 
+   | | |  ___/ __|/ __/ _` | `_ \| `_ \ / _ \ `__|
+  _| |_| |   \__ \ (_| (_| | | | | | | |  __/ |   
+ |_____|_|   |___/\___\__,_|_| |_|_| |_|\___|_|   
+                                                  
+                                                  
+'
+  # ----------------------------------------------------------------------------------------
+  '
+
+                                                                                                                                                               
+                                                                                                                                                               
+IIIIIIIIIIPPPPPPPPPPPPPPPPP                                                                                                                                    
+I::::::::IP::::::::::::::::P                                                                                                                                   
+I::::::::IP::::::PPPPPP:::::P                                                                                                                                  
+II::::::IIPP:::::P     P:::::P                                                                                                                                 
+  I::::I    P::::P     P:::::P   ssssssssss       cccccccccccccccc  aaaaaaaaaaaaa  nnnn  nnnnnnnn    nnnn  nnnnnnnn        eeeeeeeeeeee    rrrrr   rrrrrrrrr   
+  I::::I    P::::P     P:::::P ss::::::::::s    cc:::::::::::::::c  a::::::::::::a n:::nn::::::::nn  n:::nn::::::::nn    ee::::::::::::ee  r::::rrr:::::::::r  
+  I::::I    P::::PPPPPP:::::Pss:::::::::::::s  c:::::::::::::::::c  aaaaaaaaa:::::an::::::::::::::nn n::::::::::::::nn  e::::::eeeee:::::eer:::::::::::::::::r 
+  I::::I    P:::::::::::::PP s::::::ssss:::::sc:::::::cccccc:::::c           a::::ann:::::::::::::::nnn:::::::::::::::ne::::::e     e:::::err::::::rrrrr::::::r
+  I::::I    P::::PPPPPPPPP    s:::::s  ssssss c::::::c     ccccccc    aaaaaaa:::::a  n:::::nnnn:::::n  n:::::nnnn:::::ne:::::::eeeee::::::e r:::::r     r:::::r
+  I::::I    P::::P              s::::::s      c:::::c               aa::::::::::::a  n::::n    n::::n  n::::n    n::::ne:::::::::::::::::e  r:::::r     rrrrrrr
+  I::::I    P::::P                 s::::::s   c:::::c              a::::aaaa::::::a  n::::n    n::::n  n::::n    n::::ne::::::eeeeeeeeeee   r:::::r            
+  I::::I    P::::P           ssssss   s:::::s c::::::c     ccccccca::::a    a:::::a  n::::n    n::::n  n::::n    n::::ne:::::::e            r:::::r            
+II::::::IIPP::::::PP         s:::::ssss::::::sc:::::::cccccc:::::ca::::a    a:::::a  n::::n    n::::n  n::::n    n::::ne::::::::e           r:::::r            
+I::::::::IP::::::::P         s::::::::::::::s  c:::::::::::::::::ca:::::aaaa::::::a  n::::n    n::::n  n::::n    n::::n e::::::::eeeeeeee   r:::::r            
+I::::::::IP::::::::P          s:::::::::::ss    cc:::::::::::::::c a::::::::::aa:::a n::::n    n::::n  n::::n    n::::n  ee:::::::::::::e   r:::::r            
+IIIIIIIIIIPPPPPPPPPP           sssssssssss        cccccccccccccccc  aaaaaaaaaa  aaaa nnnnnn    nnnnnn  nnnnnn    nnnnnn    eeeeeeeeeeeeee   rrrrrrr            
+                                                                                                                                                               
+                                                                                                                                                               
+                                                                                                                                                               
+                                                                                                                                                               
+                                                                                                                                                               
+                                                                                                                                                               
+                                                                                                                                                               
+
+'
+  # ----------------------------------------------------------------------------------------
+
+  '
+_________ _______  _______  _______  _______  _        _        _______  _______ 
+\__   __/(  ____ )(  ____ \(  ____ \(  ___  )( (    /|( (    /|(  ____ \(  ____ )
+   ) (   | (    )|| (    \/| (    \/| (   ) ||  \  ( ||  \  ( || (    \/| (    )|
+   | |   | (____)|| (_____ | |      | (___) ||   \ | ||   \ | || (__    | (____)|
+   | |   |  _____)(_____  )| |      |  ___  || (\ \) || (\ \) ||  __)   |     __)
+   | |   | (            ) || |      | (   ) || | \   || | \   || (      | (\ (   
+___) (___| )      /\____) || (____/\| )   ( || )  \  || )  \  || (____/\| ) \ \__
+\_______/|/       \_______)(_______/|/     \||/    )_)|/    )_)(_______/|/   \__/
+                                                                                 
+
+'
+
+  # ----------------------------------------------------------------------------------------
+  '
+ ___   _______  _______  _______  _______  __    _  __    _  _______  ______   
+|   | |       ||       ||       ||   _   ||  |  | ||  |  | ||       ||    _ |  
+|   | |    _  ||  _____||       ||  |_|  ||   |_| ||   |_| ||    ___||   | ||  
+|   | |   |_| || |_____ |       ||       ||       ||       ||   |___ |   |_||_ 
+|   | |    ___||_____  ||      _||       ||  _    ||  _    ||    ___||    __  |
+|   | |   |     _____| ||     |_ |   _   || | |   || | |   ||   |___ |   |  | |
+|___| |___|    |_______||_______||__| |__||_|  |__||_|  |__||_______||___|  |_|
+'
+
+  # ----------------------------------------------------------------------------------------
+  '
+                                         
+ _____ _____                             
+|     |  _  |___ ___ ___ ___ ___ ___ ___ 
+|-   -|   __|_ -|  _| .`|   |   | -_|  _|
+|_____|__|  |___|___|__,|_|_|_|_|___|_|  
+                                         
+
+'
+
+  # ----------------------------------------------------------------------------------------
+
+  '
+                                                      
+                                                      
+██ █████▄  ▄▄▄▄  ▄▄▄▄  ▄▄▄  ▄▄  ▄▄ ▄▄  ▄▄ ▄▄▄▄▄ ▄▄▄▄  
+██ ██▄▄█▀ ███▄▄ ██▀▀▀ ██▀██ ███▄██ ███▄██ ██▄▄  ██▄█▄ 
+██ ██     ▄▄██▀ ▀████ ██▀██ ██ ▀██ ██ ▀██ ██▄▄▄ ██ ██ 
+                                                      
+'
+
+)
 
 #cool welcome message in a nice cyan color
-echo -e "\e[36mWelcome to IP scanner!\e[0m"
+startup() {
+  clear
+  echo ""
+  echo -e "${cyan}${bigtext[($RANDOM % 7)]}${blank}"
+
+  for x in {1..4}; do
+    sleep 0.5
+    echo "initializing content [${x}/4]"
+  done
+  sleep 1
+  echo ""
+  for y in {1..16}; do
+    sleep 0.01
+    echo "loading [${y}/16]"
+  done
+  sleep 2
+}
 
 #this gives the user sometihng to look at while the script runs its magic.
 search() {
-  echo -e "\e[32mYour address is:\e[0m"
-  echo -e "\e[31m$network\e[0m"
-  echo -e "\e[0mNow searching for addresses on the network: \e[35m${network%.*}.x\e[0m" #"\e[35${network%.*}\e[0m")
-  #sleep 2.5
+  echo ""
+  echo -e "${cyan}----------<<Welcome to IPscanner>>----------${blank}"
+  echo -e "${green}Your address is:${blank}"
+  echo -e "${red}$network${blank}"
+  echo ""
+  sleep 1.5
+  echo -e "Now searching for addresses on the network: ${purple}${network%.*}.x${blank}" #"\e[35${network%.*}\e[0m")
+  sleep 2.5
 }
 
 #This is where the magic actually happens.
@@ -23,11 +148,33 @@ scan() {
   for ip in {1..254}; do          #this is to go trough every address from 1 to 254 and put it in a variable named "ip"
     address="${network%.*}.${ip}" # this is to add the "ip" variable to the "network" varable so we get something like 192.168.20.IP
 
-    ping -c 1 "${address}" >/dev/null 2>&1 #This is the thingy that pings an address and looks for a response
+    ping -c 1 -W 0.3 "${address}" >/dev/null 2>&1 #This is the thingy that pings an address and looks for a response
 
-    if [ $? -ne 0 ]; then # this looks for adresses that did not respond, and adds those to an array
-      ip_array+=("$address")
-      echo ${address}
+    if [ $? -eq 0 ]; then # this looks for adresses that did not respond
+
+      if [ ${ip} -lt 10 ]; then
+        echo -e "${address} ${green}  [up]${blank}--------- ${ip}/254"
+
+      elif [ ${ip} -lt 255 ] && [ ${ip} -gt 9 ]; then
+        echo -e "${address} ${green} [up]${blank}-------- ${ip}/254"
+
+      elif [ ${ip} -lt 255 ] && [ ${ip} -gt 99]; then
+        echo -e "${address} ${green} [up]${blank}----- ${ip}/254"
+
+      fi
+
+    elif [ $? -ne 0 ]; then
+
+      if [ ${ip} -lt 10 ]; then
+        echo -e "${address} ${red} [down]${blank}-------- ${ip}/254"
+
+      elif [ ${ip} -lt 255 ] && [ ${ip} -gt 9 ]; then
+        echo -e "${address} ${red}[down]${blank}------- ${ip}/254"
+
+      elif [ ${ip} -lt 255 ] && [ ${ip} -gt 99]; then
+        echo -e "${address} ${red}[down]${blank}---- ${ip}/254"
+
+      fi
     fi
 
     ((count += 1)) #this is just to show how many times the code ran. other words, how many adresses was pinged.
@@ -35,6 +182,7 @@ scan() {
 }
 
 # This is where we call the functions and in order
+startup
 search
 wait
 scan
