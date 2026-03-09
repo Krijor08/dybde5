@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dybde5_app
+    volumes:
+      - ./scripts:/app/scripts
+      - ./data:/app/data
+    environment:
+      - RUST_LOG=info
+      - DOTNET_ENVIRONMENT=Development
+    # Denne delen er viktig hvis vennene dine skal se GUI-en på Linux
+    # environment:
+    #   - DISPLAY=${DISPLAY}
+    # network_mode: "host" 
+    restart: unless-stopped
