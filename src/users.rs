@@ -3,11 +3,15 @@ use serde::{Deserialize, Serialize};
 use serde_json;
 
 use crate::logger;
+use crate::help::login_help;
+
+use crate::logger::Message;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct User {
  	pub(crate) username: String,
  	pub(crate) email: String,
+	pub(crate) password: String,
  	pub(crate) access_level: u8,
 }
 
@@ -15,8 +19,6 @@ pub struct User {
 pub struct Root {
     users: Vec<User>,
 }
-
-
 
 pub fn get_users() -> Result<Vec<User>, &'static str> {
 	let content: String = std::fs::read_to_string("./users.json")
@@ -34,23 +36,51 @@ pub fn login(users: &[User]) -> User {
 		let mut username: String = String::new();
 		stdin()
 			.read_line(&mut username)
-			.expect("Failed to read line");
+			.expect("Failed to read line. Type 'h' for help.");
 
 		let username: &str = username.trim();
 
 		if username.is_empty() {
-			println!("Username cannot be empty. Please try again.\n");
+			logger(&Message {
+				content: String::from("Username cannot be empty. Please try again."),
+				level: 400,
+			});
 			continue;
 		}
 
-		if username == "cancel" {
-			println!("Login cancelled. Exiting program.");
+		if username.contains(' ') {
+			logger(&Message {
+				content: String::from("Username cannot contain spaces. Please try again."),
+				level: 400,
+			});
+			continue;
+		}
+
+		if username.len() < 3 {
+			logger(&Message {
+				content: String::from("Username must be at least 3 characters long. Please try again."),
+				level: 400,
+			});
+			continue;
+		}
+
+		if username == "h" {
+			login_help();
+			continue;
+		}
+
+		if username == "c" {
+			logger(&Message {
+				content: String::from("Login cancelled. Exiting program."),
+				level: 200,
+			});
 			return User {
 				username: String::from(""),
 				email: String::from(""),
+				password: String::from(""),
 				access_level: 0,
 			};
-		}
+		}			
 
 		for user in users {
 			if user.username == username {
@@ -61,6 +91,10 @@ pub fn login(users: &[User]) -> User {
 				return user.clone();
 			}
 		};
-		println!("Username not found. Please try again.\n");
+
+		logger(&Message {
+			content: String::from("Username not found. Please try again."),
+			level: 404,
+		});
 	}	
 }
