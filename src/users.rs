@@ -32,7 +32,20 @@ pub fn create_user(users: &[User], current_access_level: u8) -> Option<User> {
 
 	let username: &str = username.trim();
 
-	if !validate_username(username) {
+	if username == "c" || username == "cancel" {
+		logger(&Message {
+			content: String::from("User creation cancelled. Returning to main menu."),
+			level: 102,
+		});
+		return None;
+	}
+
+	if username == "h" || username == "help" {
+		login_help();
+		return None;
+	}
+
+	if !validate(username) {
 		return None;
 	}
 
@@ -54,6 +67,10 @@ pub fn create_user(users: &[User], current_access_level: u8) -> Option<User> {
 
 	let email: &str = email.trim();
 
+	if !validate(email) {
+		return None;
+	}
+
 	println!("Enter password:");
 	let mut password: String = String::new();
 	stdin()
@@ -61,6 +78,10 @@ pub fn create_user(users: &[User], current_access_level: u8) -> Option<User> {
 		.expect("Failed to read line. Type 'h' for help.");
 
 	let password: &str = password.trim();
+
+	if !validate(password) {
+		return None;
+	}
 
 	println!("Enter access level (0-255):");
 	let mut access_level_str: String = String::new();
@@ -79,6 +100,14 @@ pub fn create_user(users: &[User], current_access_level: u8) -> Option<User> {
 			return None;
 		}
 	};
+
+	if access_level > 255 || access_level < 0 {
+		logger(&Message {
+			content: String::from("Access level must be between 0 and 255."),
+			level: 400,
+		});
+		return None;
+	}
 
 	if access_level > current_access_level {
 		logger(&Message {
@@ -142,7 +171,20 @@ pub fn login(users: &[User]) -> User {
 
 		let username: &str = username.trim();
 
-		if !validate_username(username) {
+		if username == "c" || username == "cancel" {
+			logger(&Message {
+				content: String::from("Login cancelled. Returning to main menu."),
+				level: 102,
+			});
+			return users[0].clone();
+		}
+
+		if username == "h" || username == "help" {
+			login_help();
+			continue;
+		}
+
+		if !validate(username) {
 			continue;
 		}
 
@@ -153,6 +195,10 @@ pub fn login(users: &[User]) -> User {
 			.expect("Failed to read line. Type 'h' for help.");
 
 		let password: &str = password.trim();
+
+		if !validate(password) {
+			continue;
+		}
 
 		for user in users {
 			if user.username == username && user.password == password {
@@ -172,31 +218,26 @@ pub fn login(users: &[User]) -> User {
 }
 
 
-pub fn validate_username(username: &str) -> bool {
-	if username.is_empty() {
+pub fn validate(input: &str) -> bool {
+	if input.is_empty() {
 			logger(&Message {
-				content: String::from("Username cannot be empty. Please try again."),
+				content: String::from("Input cannot be empty. Please try again."),
 				level: 400,
 			});
 			return false;
 		}
 
-		if username.contains(' ') {
+		if input.contains(' ') {
 			logger(&Message {
-				content: String::from("Username cannot contain spaces. Please try again."),
+				content: String::from("Input cannot contain spaces. Please try again."),
 				level: 400,
 			});
 			return false;
 		}
 
-		if username == "h" {
-			login_help();
-			return false;
-		}
-
-		if username.len() < 3 {
+		if input.len() < 3 {
 			logger(&Message {
-				content: String::from("Username must be at least 3 characters long. Please try again."),
+				content: String::from("Input must be at least 3 characters long. Please try again."),
 				level: 400,
 			});
 			return false;

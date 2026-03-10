@@ -9,11 +9,11 @@ pub fn help() {
 }
 
 pub fn login_help() {
-	println!("Login Help:");
+	println!("\nLogin Help:\n");
 	println!("Enter your username when prompted.");
 	println!("Enter your password when prompted.");
 	println!("If you don't have an account, type 'signup' or 'su' to create one.");
 	println!("Type 'c' to cancel login and return to the main menu.");
 	println!("Type 'h' to show this help message again.");
-	println!("Usernames must be at least 3 characters long and cannot contain spaces.");
+	println!("Usernames must be at least 3 characters long and cannot contain spaces.\n\n");
 }
