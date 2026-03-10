@@ -14,7 +14,7 @@ use bashrun::run_script;
 use help::help;
 use ipchecker::ip;
 use logger::logger;
-use users::{get_users, login};
+use users::{ create_user, get_users, login };
 
 #[tokio::main]
 async fn main() {
@@ -62,7 +62,7 @@ async fn main() {
 				}
 			},
 
-			"login"	 | "l" => 	 current_user = login(&users),
+			"login"	 | "l" => 	current_user = login(&users),
 
 			"script" | "s" => {
 				if os_type != "linux" {
@@ -81,6 +81,16 @@ async fn main() {
 						};
 						logger(&msg);
 					}
+				}
+			},
+
+			"signup" | "su" => {
+				let new_user = create_user(&users, current_user.access_level);
+				if let Some(user) = new_user {
+					logger(&Message {
+						content: format!("User '{}' created successfully.", user.username),
+						level: 201,
+					});
 				}
 			},
 

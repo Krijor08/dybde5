@@ -2,10 +2,11 @@ use std::io::stdin;
 use serde::{Deserialize, Serialize};
 use serde_json;
 
-use crate::logger;
+use crate::{logger};
 use crate::help::login_help;
 
 use crate::logger::Message;
+
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct User {
@@ -15,10 +16,110 @@ pub struct User {
  	pub(crate) access_level: u8,
 }
 
-#[derive(Debug, Deserialize)]
+
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Root {
     users: Vec<User>,
 }
+
+
+pub fn create_user(users: &[User], current_access_level: u8) -> Option<User> {
+	println!("Enter new username:");
+	let mut username: String = String::new();
+	stdin()
+		.read_line(&mut username)
+		.expect("Failed to read line. Type 'h' for help.");
+
+	let username: &str = username.trim();
+
+	if !validate_username(username) {
+		return None;
+	}
+
+	for user in users {
+		if user.username == username {
+			logger(&Message {
+				content: String::from("Username already exists. Please try again."),
+				level: 400,
+			});
+			return None;
+		}
+	};
+
+	println!("Enter email:");
+	let mut email: String = String::new();
+	stdin()
+		.read_line(&mut email)
+		.expect("Failed to read line. Type 'h' for help.");
+
+	let email: &str = email.trim();
+
+	println!("Enter password:");
+	let mut password: String = String::new();
+	stdin()
+		.read_line(&mut password)
+		.expect("Failed to read line. Type 'h' for help.");
+
+	let password: &str = password.trim();
+
+	println!("Enter access level (0-255):");
+	let mut access_level_str: String = String::new();
+	stdin()
+		.read_line(&mut access_level_str)
+		.expect("Failed to read line. Type 'h' for help.");
+
+	let access_level_str: &str = access_level_str.trim();
+	let access_level: u8 = match access_level_str.parse() {
+		Ok(num) => num,
+		Err(_) => {
+			logger(&Message {
+				content: String::from("Invalid access level. Please enter a number between 0 and 255."),
+				level: 400,
+			});
+			return None;
+		}
+	};
+
+	if access_level > current_access_level {
+		logger(&Message {
+			content: String::from("Cannot create user with higher access level than your own."),
+			level: 403,
+		});
+		return None;
+	}
+
+	let new_user = User {
+		username: username.to_string(),
+		email: email.to_string(),
+		password: password.to_string(),
+		access_level,
+	};
+
+	let mut all_users = users.to_vec();
+	all_users.push(new_user.clone());
+
+	match serde_json::to_string_pretty(&Root { users: all_users }) {
+		Ok(json) => {
+			if let Err(e) = std::fs::write("./users.json", json) {
+				logger(&Message {
+					content: format!("Failed to write to users.json: {}", e),
+					level: 500,
+				});
+				return None;
+			} else {
+				return Some(new_user);
+			}
+		},
+		Err(e) => {
+			logger(&Message {
+				content: format!("Failed to serialize users: {}", e),
+				level: 500,
+			});
+			return None;
+		}
+	}
+}
+
 
 pub fn get_users() -> Result<Vec<User>, &'static str> {
 	let content: String = std::fs::read_to_string("./users.json")
@@ -30,6 +131,7 @@ pub fn get_users() -> Result<Vec<User>, &'static str> {
 	Ok(root.users)
 }
 
+
 pub fn login(users: &[User]) -> User {
 	loop {
 		println!("Enter your username:");
@@ -40,50 +142,20 @@ pub fn login(users: &[User]) -> User {
 
 		let username: &str = username.trim();
 
-		if username.is_empty() {
-			logger(&Message {
-				content: String::from("Username cannot be empty. Please try again."),
-				level: 400,
-			});
+		if !validate_username(username) {
 			continue;
 		}
 
-		if username.contains(' ') {
-			logger(&Message {
-				content: String::from("Username cannot contain spaces. Please try again."),
-				level: 400,
-			});
-			continue;
-		}
+		println!("Enter your password:");
+		let mut password: String = String::new();
+		stdin()
+			.read_line(&mut password)
+			.expect("Failed to read line. Type 'h' for help.");
 
-		if username.len() < 3 {
-			logger(&Message {
-				content: String::from("Username must be at least 3 characters long. Please try again."),
-				level: 400,
-			});
-			continue;
-		}
-
-		if username == "h" {
-			login_help();
-			continue;
-		}
-
-		if username == "c" {
-			logger(&Message {
-				content: String::from("Login cancelled. Exiting program."),
-				level: 200,
-			});
-			return User {
-				username: String::from(""),
-				email: String::from(""),
-				password: String::from(""),
-				access_level: 0,
-			};
-		}			
+		let password: &str = password.trim();
 
 		for user in users {
-			if user.username == username {
+			if user.username == username && user.password == password {
 				logger(&crate::logger::Message {
 					content: format!("User '{}' logged in successfully.", username),
 					level: 200,
@@ -93,8 +165,42 @@ pub fn login(users: &[User]) -> User {
 		};
 
 		logger(&Message {
-			content: String::from("Username not found. Please try again."),
+			content: String::from("Invalid username or password. Please try again."),
 			level: 404,
 		});
 	}	
+}
+
+
+pub fn validate_username(username: &str) -> bool {
+	if username.is_empty() {
+			logger(&Message {
+				content: String::from("Username cannot be empty. Please try again."),
+				level: 400,
+			});
+			return false;
+		}
+
+		if username.contains(' ') {
+			logger(&Message {
+				content: String::from("Username cannot contain spaces. Please try again."),
+				level: 400,
+			});
+			return false;
+		}
+
+		if username == "h" {
+			login_help();
+			return false;
+		}
+
+		if username.len() < 3 {
+			logger(&Message {
+				content: String::from("Username must be at least 3 characters long. Please try again."),
+				level: 400,
+			});
+			return false;
+		}
+
+	true
 }
