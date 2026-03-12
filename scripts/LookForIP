@@ -11,6 +11,14 @@ blank="\e[0m"
 bold=$(tput bold)
 normal=$(tput sgr0)
 
+tag=(
+  '@JustCallMeDullp'
+  '@duløjshdlfsdf-jkdsobyfcitskjfjnhecaoiolfx-cueyfdghrhaneslkdxreokjurfkjjihulp'
+  '@dulup'
+  '@qnlnb'
+  '@qulub'
+)
+
 #the next comment is old and wrong. But i'm too lazy to remove it.
 #this one look scary, but it's just cutting the result of running "ifcinfig eno1" to only display the ip
 #network=$(ifconfig eno1 | grep "inet " | cut -d " " -f 10) # <--- This only woks with "net-tools" and olnly if you're using eno1. not practical
@@ -66,6 +74,12 @@ IIIIIIIIIIPPPPPPPPPP           sssssssssss        cccccccccccccccc  aaaaaaaaaa  
                                                                                                                                                                
                                                                                                                                                                
 
+
+
+
+
+
+
 '
   # ----------------------------------------------------------------------------------------
 
@@ -80,10 +94,16 @@ ___) (___| )      /\____) || (____/\| )   ( || )  \  || )  \  || (____/\| ) \ \_
 \_______/|/       \_______)(_______/|/     \||/    )_)|/    )_)(_______/|/   \__/
                                                                                  
 
+
+
+
+
+
 '
 
   # ----------------------------------------------------------------------------------------
   '
+
  ___   _______  _______  _______  _______  __    _  __    _  _______  ______   
 |   | |       ||       ||       ||   _   ||  |  | ||  |  | ||       ||    _ |  
 |   | |    _  ||  _____||       ||  |_|  ||   |_| ||   |_| ||    ___||   | ||  
@@ -95,7 +115,13 @@ ___) (___| )      /\____) || (____/\| )   ( || )  \  || )  \  || (____/\| ) \ \_
 
   # ----------------------------------------------------------------------------------------
   '
-                                         
+
+
+
+
+
+
+
  _____ _____                             
 |     |  _  |___ ___ ___ ___ ___ ___ ___ 
 |-   -|   __|_ -|  _| .`|   |   | -_|  _|
@@ -117,12 +143,27 @@ ___) (___| )      /\____) || (____/\| )   ( || )  \  || )  \  || (____/\| ) \ \_
 
 )
 
+# Switch Case
+# Funny thing where my name has a 4 in 28 chance to be something other than JustCallMeDullp :3
+# The 0 is the first value in an array, so we use this with the array 'tag' to get the different tags.
+rand() {
+  case $((RANDOM % 29)) in
+  [1-24]) echo 0 ;;
+  25) echo 1 ;;
+  26) echo 2 ;;
+  27) echo 3 ;;
+  28) echo 4 ;;
+
+  esac
+}
+# Firs function
 # Startp screen with color and animations. just looks nice
 startup() {
+  x=$(rand)
   clear
   echo ""
   echo -e "${cyan}${bigtext[($RANDOM % 7)]}${blank}"
-  echo -e "${cyan}By: @JustCallMeDullp${blank}"
+  echo -e "${cyan}By: ${tag[(x)]} ${blank}"
 
   for x in {1..4}; do
     sleep 0.5
