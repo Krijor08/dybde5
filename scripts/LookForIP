@@ -6,6 +6,7 @@ red="\e[31m"
 green="\e[32m"
 purple="\e[35m"
 cyan="\e[36m"
+yellow="\e[33m"
 blank="\e[0m"
 
 bold=$(tput bold)
@@ -147,12 +148,16 @@ ___) (___| )      /\____) || (____/\| )   ( || )  \  || )  \  || (____/\| ) \ \_
 # Funny thing where my name has a 4 in 28 chance to be something other than JustCallMeDullp :3
 # The 0 is the first value in an array, so we use this with the array 'tag' to get the different tags.
 rand() {
-  case $((RANDOM % 29)) in
-  [1-24]) echo 0 ;;
-  25) echo 1 ;;
-  26) echo 2 ;;
-  27) echo 3 ;;
-  28) echo 4 ;;
+
+
+  echo "${die}"
+  case ${bash d20} in
+  1) echo 0 ;;
+  17) echo 1 ;;
+  18) echo 2 ;;
+  19) echo 3 ;;
+  20) echo 4 ;; 
+  *)  echo "error" ;;
 
   esac
 }
@@ -180,6 +185,7 @@ startup() {
 
 # Like startup, it gives the user sometihng to look at while the script runs its magic.
 welcome() {
+  clear
   echo ""
   echo -e "${cyan}----------<<Welcome to IPscanner>>----------${blank}"
   echo -e "${green}Your address is:${blank}"
@@ -222,7 +228,9 @@ scan() {
     fi
     ((count += 1)) #this is just to show how many times the code ran. other words, how many adresses was pinged.
   done
-  echo -e "\e[33mscanned: $count addresses\e[0m" # print in yellow how many addresses was pinged
+  # print in yellow how many addresses was pinged
+  echo -e "${yellow}Scanned ${ip} adresses${blank}"
+
 }
 
 # ----------------------------------------------------------------------------------------------------------------------------------
@@ -242,6 +250,8 @@ first() {
       fi
     fi
   done
+
+  echo -e "${yellow}Scanned ${ip} adresses${blank}"
 }
 
 # ----------------------------------------------------------------------------------------------------------------------------------
@@ -261,6 +271,7 @@ second() {
       fi
     fi
   done
+  echo -e "${yellow}Scanned ${ip} adresses${blank}"
 }
 
 # ----------------------------------------------------------------------------------------------------------------------------------
@@ -288,21 +299,29 @@ what() {
   1. Show all active IPs
   2. Show all inactive IPs
   3. Full scan
+  4. Exit
   "
   read -p ">> " choice                 # This uses "-p" for ptomt. so that the string and the input is on the same line
-  if ! [[ ${choice} =~ ^[1-3] ]]; then # check if the choice is NOT a number between 1 and 3
+  if ! [[ ${choice} =~ ^[1-4] ]]; then # check if the choice is NOT a number between 1 and 3
     clear
-    echo -e "${bold}Not an option. Select [1-3]${normal}"
+    echo -e "${bold}Not an option. Select [1-4]${normal}"
     what
   fi
 
   # Here we call the magic we gave the options
   if [ ${choice} -eq 1 ]; then
     first
+    what
   elif [ ${choice} -eq 2 ]; then
     second
+    what
   elif [ ${choice} -eq 3 ]; then
     third
+    what
+  elif [ ${choice} -eq 4 ]; then
+    clear
+    bash cls.sh
+    exit
   fi
 }
 

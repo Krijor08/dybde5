@@ -1,0 +1,5 @@
+#!/etc/bash
+
+sudo bash dep
+
+bash cls.sh
