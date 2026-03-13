@@ -39,7 +39,7 @@ async fn main() {
 	let mut current_user: User = get_users().unwrap()[0].clone();
 
 	loop {
-		let command: String = input("Enter a command (type 'help' for a list of commands):");
+		let command: String = input("\nEnter a command (type 'help' for a list of commands):");
 	
 		match command.as_str() {
 			"exit"	| "e" => {
@@ -92,7 +92,10 @@ async fn main() {
 				users = get_users().unwrap();
 			},
 
-			_ => println!("Unknown command. Type 'help' for a list of commands."),
+			_ => logger(&Message {
+				content: format!("Unknown command: '{}'. Type 'help' for a list of commands.", command),
+				level: 404,
+			}),
 		}
 	}
 }
