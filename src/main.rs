@@ -1,5 +1,6 @@
 mod bashrun;
 mod help;
+mod input;
 mod ipchecker;
 mod logger;
 mod users;
@@ -7,14 +8,16 @@ mod users;
 use users::User;
 use logger::Message;
 
-use std::{env::consts, io::stdin};
+use std::{env::consts};
 use tokio;
 
 use bashrun::run_script;
 use help::help;
+use input::input;
 use ipchecker::ip;
 use logger::logger;
-use users::{get_users, login};
+use users::{ create_user, get_users, login };
+
 
 #[tokio::main]
 async fn main() {
@@ -31,20 +34,14 @@ async fn main() {
 	};
 	logger(&msg);
 
-	let users: Vec<User> = get_users().unwrap();
+	let mut users: Vec<User> = get_users().unwrap();
 
 	let mut current_user: User = get_users().unwrap()[0].clone();
 
 	loop {
-		println!("\nEnter command:");
-		let mut command: String = String::new();
-		stdin()
-			.read_line(&mut command)
-			.expect("Failed to read line");
-
-		let command: &str = command.trim();
+		let command: String = input("Enter a command (type 'help' for a list of commands):");
 	
-		match command {
+		match command.as_str() {
 			"exit"	| "e" => {
 				let msg: Message = Message {
 					content: String::from("Exiting program."),
@@ -62,7 +59,7 @@ async fn main() {
 				}
 			},
 
-			"login"	 | "l" => 	 current_user = login(&users),
+			"login"	 | "l" => 	current_user = login(&users),
 
 			"script" | "s" => {
 				if os_type != "linux" {
@@ -84,25 +81,37 @@ async fn main() {
 				}
 			},
 
+			"signup" | "su" => {
+				let new_user = create_user(&users, current_user.access_level);
+				if let Some(user) = new_user {
+					logger(&Message {
+						content: format!("User '{}' created successfully.", user.username),
+						level: 201,
+					});
+				}
+				users = get_users().unwrap();
+			},
+
 			_ => println!("Unknown command. Type 'help' for a list of commands."),
 		}
 	}
+}
 
-	fn check_access(current_user: &User, required_level: u8) -> bool {
-		if current_user.access_level >= required_level {
-			let msg: Message = Message {
-				content: format!("Welcome, {}!", current_user.username),
-				level: 100,
-			};
-			logger(&msg);
-		} else {
-			let msg: Message = Message {
-				content: format!("Access denied for user: {}", current_user.username),
-				level: 403,
-			};
-			logger(&msg);
-			return false;
-		}
-		true
+
+fn check_access(current_user: &User, required_level: u8) -> bool {
+	if current_user.access_level >= required_level {
+		let msg: Message = Message {
+			content: format!("Welcome, {}!", current_user.username),
+			level: 100,
+		};
+		logger(&msg);
+	} else {
+		let msg: Message = Message {
+			content: format!("Access denied for user: {}", current_user.username),
+			level: 403,
+		};
+		logger(&msg);
+		return false;
 	}
+	true
 }

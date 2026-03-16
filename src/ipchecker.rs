@@ -1,13 +1,8 @@
 use crate::logger::logger;
 use crate::logger::Message;
-use std::io;
 
 pub fn ip() {
-	let mut ip: String = String::new();
-	println!("Enter an IP address to validate:");
-	io::stdin()
-        .read_line(&mut ip)
-        .expect("Failed to read line");
+	let ip: String = crate::input::input("Enter an IP address to check:");
 
 	if ip_checker(ip) {
 		let success: Message = Message {

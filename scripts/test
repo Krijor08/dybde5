@@ -1,0 +1,8 @@
+#!/etc/bash
+
+file="image.png.zip"
+echo "${file}"
+echo "${file%.*}"  # Output: image.png (Removes shortest match from end)
+echo "${file%%.*}" # Output: image (Removes longest match from end)
+echo "${file#*.}"  # Output: png.zip (Removes shortest match from start)
+echo "${file##*.}" # Output: zip (Removes longest match from start)

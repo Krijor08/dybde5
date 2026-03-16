@@ -62,7 +62,7 @@ Thumbs.db
 
 # Ignore these specific files
 dybde5.sln
-users.json
+user.json
 DesktopFrontend/FrontendGUI/RedButton1.cs
 DesktopFrontend/FrontendGUI/RedButton2.cs
 DesktopFrontend/FrontendGUI/RedButton3.cs

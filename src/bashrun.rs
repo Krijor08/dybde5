@@ -2,11 +2,11 @@ use std::{ thread };
 use std::process::{ Command, Child };
 use std::path::Path;
 use std::io;
-use std::io::{ BufRead, stdin };
+use std::io::{ BufRead };
 use std::process::Stdio as stdio;
 
 use logger::Message;
-use crate::logger;
+use crate::{input, logger};
 
 async fn ls() -> io::Result<Vec<String>> {
 	let target_dir = Path::new("scripts");
@@ -36,13 +36,7 @@ async fn ls() -> io::Result<Vec<String>> {
 pub async fn run_script() -> io::Result<()> {
 	let paths = ls().await?;
 
-	println!("\nChoose script to run:");
-	let mut input: String = String::new();
-	stdin()
-		.read_line(&mut input)
-		.expect("Failed to read line");
-
-	let input: &str = input.trim();
+	let input = input("Enter the name of the script to run (type 'h' for help):");
 
 	if !paths.contains(&input.to_string()) {
 		return Err(io::Error::new(io::ErrorKind::Other, "Invalid script selection"));
