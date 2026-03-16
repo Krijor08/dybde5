@@ -13,6 +13,8 @@ pub fn logger(message: &Message) {
 		400 => println!("[BAD REQUEST]: {}", message.content),
 		401 => println!("[UNAUTHORIZED]: {}", message.content),
 		403 => println!("[FORBIDDEN]: {}", message.content),
+		404 => println!("[NOT FOUND]: {}", message.content),
+		409 => println!("[CONFLICT]: {}", message.content),
 		418 => println!("[I'M A TEAPOT]: {}", message.content),
 		500 => println!("[INTERNAL SERVER ERROR]: {}", message.content),
 		_ => println!("[UNKNOWN]: {}", message.content),

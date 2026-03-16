@@ -23,17 +23,26 @@ pub fn ip_checker(mut ip: String) -> bool {
 	ip = ip.trim().to_string();
 
 	let octets: Vec<&str> = ip.split('.').collect();
-	println!("Octets: {}", octets.len().to_string());
+	logger(&Message {
+		content: format!("Octets: {}", octets.len().to_string()),
+		level: 102,
+	});
 	if octets.len() != 4 {
 		return false;
 	}
 
 	for octet in octets {
-		println!("Checking octet: {}", octet);
+		logger(&Message {
+			content: format!("Checking octet: {}", octet),
+			level: 102,
+		});
 		match octet.parse::<u8>() {
 			Ok(_) => continue,
 			Err(_) => {
-				println!("Failed to parse octet: {}", octet);
+				logger(&Message {
+					content: format!("Failed to parse octet: {}", octet),
+					level: 400,
+				});
 				return false;
 			}
 		}

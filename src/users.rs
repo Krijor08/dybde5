@@ -46,7 +46,7 @@ pub fn create_user(users: &[User], current_access_level: u8) -> Option<User> {
 		if user.username == username {
 			logger(&Message {
 				content: String::from("Username already exists. Please try again."),
-				level: 400,
+				level: 409,
 			});
 			return None;
 		}
