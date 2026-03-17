@@ -1,7 +1,7 @@
 #!/etc/bash
 
 #text configs. To make nice colorfull and bold text.
-count=0
+count=1
 red="\e[31m"
 green="\e[32m"
 purple="\e[35m"
@@ -199,6 +199,7 @@ scan() {
   # Local variables are yanked from "what"
   local from=$1
   local to=$2
+  total=$(( (to - from) +1 ))
   echo -e "Now searching for addresses on the network: ${purple}${network%.*}.x${blank}" #"\e[35${network%.*}\e[0m")
   sleep 2.5
   for ip in $( # We use the 'from' and 'to' from 'wait' to go trough the addresses the user wants
@@ -209,29 +210,30 @@ scan() {
     ping -c 1 -W 0.3 "${address}" >/dev/null 2>&1 #This is the thingy that pings an address and waits for a response
 
     if [ $? -eq 0 ]; then # this looks for adresses that did respond and prints the address with a nice green [up]
-      if [ ${ip} -lt 10 ]; then
-        echo -e "${address}${green}     [up]${blank}--------- ${ip}/254"
+      if [ ${count} -lt 10 ]; then
+          echo -e "${address}${green}     [up]${blank}--------- ${count}/${total}"
       elif [ ${ip} -lt 100 ] && [ ${ip} -gt 9 ]; then
-        echo -e "${address}${green}    [up]${blank}-------- ${ip}/254"
+        echo -e "${address}${green}    [up]${blank}-------- ${count}/${total}"
       elif [ ${ip} -lt 255 ] && [ ${ip} -gt 99 ]; then
-        echo -e "${address}${green}   [up]${blank}------- ${ip}/254"
+        echo -e "${address}${green}   [up]${blank}------- ${count}/${total}"
       fi
 
     elif [ $? -ne 0 ]; then # this looks for the addresses that did NOT respond, and prints the address with a nice red [down]
-      if [ ${ip} -lt 10 ]; then
-        echo -e "${address}${red}    [down]${blank}-------- ${ip}/254"
+      if [ ${count} -lt 10 ]; then
+        echo -e "${address}${red}    [down]${blank}-------- ${count}/${total}"
       elif [ ${ip} -lt 100 ] && [ ${ip} -gt 9 ]; then
-        echo -e "${address}${red}   [down]${blank}------- ${ip}/254"
+        echo -e "${address}${red}   [down]${blank}------- ${count}/${total}"
       elif [ ${ip} -lt 255 ] && [ ${ip} -gt 99 ]; then
-        echo -e "${address}${red}  [down]${blank}------ ${ip}/254"
+        echo -e "${address}${red}  [down]${blank}------ ${count}/${total}"
       fi
     fi
-    ((count += 1)) #this is just to show how many times the code ran. other words, how many adresses was pinged.
+      ((count += 1)) #this is just to show how many times the code ran. other words, how many adresses was pinged.
   done
   # print in yellow how many addresses was pinged
-  echo -e "${yellow}Scanned ${ip} adresses${blank}"
-
+  echo -e "${yellow}Scanned $(( (ip) -1 )) adresses${blank}"
+  count=1
 }
+
 
 # ----------------------------------------------------------------------------------------------------------------------------------
 # And this is ofc, the first option.
@@ -279,11 +281,20 @@ second() {
 third() {
   echo "cool, now. How many addresses do you want to see?"
   sleep 0.5
-  echo -e "${network%.*}.${red}1-254$blank}"
-  read -p "from ${network%.*}.1-254 : " from # we use '-p' again to read the input and asign a variable on the same line.
-  read -p "to ${network%.*}.1-254: " to
+  echo -e "${network%.*}.${red}1-254${blank}"
+  echo -e "Start at:"
+  read from #
+  echo -e "Stop at:"
+  read to
   if [ $from -gt $to ]; then
     echo "Hey, no. You Can't do that. 'From' needs to be grater than 'to'"
+    third
+  elif [ $from -gt 254 ]; then
+    echo "Can't be greater than 254"
+    third
+  elif [ $to -gt 254 ]; then
+    echo "Can't be greater than 254"
+    third
   else
     echo "$from..$to"  # this just prints the options you chose
     scan "$from" "$to" # this starts the scan function and sends the 'from' and 'to' variable to run the scan the correct ammount of time
