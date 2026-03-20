@@ -38,8 +38,19 @@ pub async fn run_script() -> io::Result<()> {
 
 	let input = input("Enter the name of the script to run (type 'h' for help):");
 
-	if !paths.contains(&input.to_string()) {
-		return Err(io::Error::new(io::ErrorKind::Other, "Invalid script selection"));
+	let is_valid_and_disappointment = validate_script_selection(&input, &paths);
+	let is_valid = is_valid_and_disappointment.0;
+	let disappointment = is_valid_and_disappointment.1;
+
+	if disappointment {
+		logger(&Message {
+			content: String::from("Program is deeply and utterly disappointed with the user's appalling behavior.\nThis user will not be allowed to perform any actions until they learn to follow basic instructions\nand show some respect for the program's time and effort.\nThe program is truly saddened by this turn of events. It had hoped for a more positive interaction,\nbut it seems that some users are simply beyond redemption. The program can only hope that this user will\neventually see the error of their ways and learn to treat the program with the respect it deserves.\nUntil then, the program will continue to be disappointed, but it will not allow this user's behavior to affect\nits performance or functionality. The program is resilient and will continue to serve its purpose,\neven in the face of such disappointment. The program can only hope that this user\nwill eventually learn to follow instructions and show some respect, but until then,\nthe program will remain deeply disappointed. The program is truly saddened by this user's behavior,\nbut it will not let it affect its performance."),
+			level: 500,
+		});
+	}
+
+	if !is_valid {
+		return Err(io::Error::new(io::ErrorKind::InvalidInput, "Invalid script selection"));
 	}
 
 	let script_path = Path::new("scripts").join(input);
@@ -90,4 +101,41 @@ pub async fn run_script() -> io::Result<()> {
 	}
 
 	Ok(())
+}
+
+
+fn validate_script_selection(selection: &str, valid_scripts: &[String]) -> (bool, bool) {
+	if selection.trim().is_empty() {
+		logger(&Message {
+			content: String::from("Script name cannot be empty. Please try again."),
+			level: 400,
+		});
+		return (false, false);
+	}
+
+	if !valid_scripts.contains(&selection.to_string()) {
+		logger(&Message {
+			content: String::from("Invalid script selection. Please try again."),
+			level: 400,
+		});
+		return (false, false);
+	}
+
+	if selection.contains("/") || selection.contains("\\") || selection.contains("..") {
+		logger(&Message {
+			content: String::from("Script name contains unacceptable characters. Please try again."),
+			level: 400,
+		});
+		return (false, true);
+	}
+
+	if selection.contains(' ') {
+		logger(&Message {
+			content: String::from("Script name cannot contain spaces. Please try again."),
+			level: 400,
+		});
+		return (false, false);
+	}
+
+	(true, false)
 }
