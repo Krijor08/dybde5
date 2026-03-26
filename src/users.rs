@@ -3,7 +3,7 @@ use serde_json;
 
 use crate::{logger, Message};
 use crate::help::login_help;
-use crate::input::input;
+use crate::input::{input, validate_input};
 
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -22,7 +22,7 @@ pub struct Root {
 }
 
 
-pub fn create_user(users: &[User], current_access_level: u8) -> Option<User> {
+pub fn create_user(users: &[User], current_access_level: &u8) -> Option<User> {
 	let username: String = input("Enter new username:");
 
 	if username == "c" || username == "cancel" {
@@ -38,7 +38,7 @@ pub fn create_user(users: &[User], current_access_level: u8) -> Option<User> {
 		return None;
 	}
 
-	if !validate(&username) {
+	if !validate_input(&username) {
 		return None;
 	}
 
@@ -54,13 +54,13 @@ pub fn create_user(users: &[User], current_access_level: u8) -> Option<User> {
 
 	let email: String = input("Enter email address:");
 
-	if !validate(&email) {
+	if !validate_input(&email) {
 		return None;
 	}
 
 	let password: String = input("Enter password:");
 
-	if !validate(&password) {
+	if !validate_input(&password) {
 		return None;
 	}
 
@@ -76,7 +76,7 @@ pub fn create_user(users: &[User], current_access_level: u8) -> Option<User> {
 		}
 	};
 
-	if access_level > current_access_level {
+	if &access_level > current_access_level {
 		logger(&Message {
 			content: String::from("Cannot create user with higher access level than your own."),
 			level: 403,
@@ -159,13 +159,13 @@ pub fn login(users: &[User]) -> User {
 			continue;
 		}
 
-		if !validate(&username) {
+		if !validate_input(&username) {
 			continue;
 		}
 
 		let password: String = input("Enter your password:");
 
-		if !validate(&password) {
+		if !validate_input(&password) {
 			continue;
 		}
 
@@ -187,30 +187,28 @@ pub fn login(users: &[User]) -> User {
 }
 
 
-pub fn validate(input: &str) -> bool {
-	if input.is_empty() {
-			logger(&Message {
-				content: String::from("Input cannot be empty. Please try again."),
-				level: 400,
-			});
-			return false;
-		}
+pub fn update_access_level(users: &[User], target_username: &str, new_access_level: u8) -> Result<(), &'static str> {
+	let mut all_users = users.to_vec();
+	let mut user_found = false;
 
-		if input.contains(' ') {
-			logger(&Message {
-				content: String::from("Input cannot contain spaces. Please try again."),
-				level: 400,
-			});
-			return false;
+	for user in &mut all_users {
+		if user.username == target_username {
+			user.access_level = new_access_level;
+			user_found = true;
+			break;
 		}
+	}
 
-		if input.len() < 3 {
-			logger(&Message {
-				content: String::from("Input must be at least 3 characters long. Please try again."),
-				level: 400,
-			});
-			return false;
-		}
+	if !user_found {
+		return Err("User not found");
+	}
 
-	true
+	match serde_json::to_string_pretty(&Root { users: all_users }) {
+		Ok(json) => {
+			std::fs::write("./user.json", json)
+				.map_err(|_| "Failed to write to user.json")?;
+			Ok(())
+		},
+		Err(_) => Err("Failed to serialize users"),
+	}
 }

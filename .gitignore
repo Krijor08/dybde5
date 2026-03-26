@@ -61,7 +61,6 @@ Thumbs.db
 **/project.assets.json
 
 # Ignore these specific files
-dybde5.sln
 user.json
 DesktopFrontend/FrontendGUI/RedButton1.cs
 DesktopFrontend/FrontendGUI/RedButton2.cs
