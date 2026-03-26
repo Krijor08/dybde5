@@ -6,7 +6,7 @@ cyan="\e[36m"
 
 clear
 neofetch
-sudo echo ""
+
 echo ""
 cowsay Hello $USER
 

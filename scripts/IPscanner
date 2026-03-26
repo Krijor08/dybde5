@@ -210,7 +210,7 @@ scan() {
     ping -c 1 -W 0.3 "${address}" >/dev/null 2>&1 #This is the thingy that pings an address and waits for a response
 
     if [ $? -eq 0 ]; then # this looks for adresses that did respond and prints the address with a nice green [up]
-      if [ ${count} -lt 10 ]; then
+      if [ ${ip} -lt 10 ]; then
           echo -e "${address}${green}     [up]${blank}--------- ${count}/${total}"
       elif [ ${ip} -lt 100 ] && [ ${ip} -gt 9 ]; then
         echo -e "${address}${green}    [up]${blank}-------- ${count}/${total}"
@@ -219,7 +219,7 @@ scan() {
       fi
 
     elif [ $? -ne 0 ]; then # this looks for the addresses that did NOT respond, and prints the address with a nice red [down]
-      if [ ${count} -lt 10 ]; then
+      if [ ${ip} -lt 10 ]; then
         echo -e "${address}${red}    [down]${blank}-------- ${count}/${total}"
       elif [ ${ip} -lt 100 ] && [ ${ip} -gt 9 ]; then
         echo -e "${address}${red}   [down]${blank}------- ${count}/${total}"
@@ -230,7 +230,7 @@ scan() {
       ((count += 1)) #this is just to show how many times the code ran. other words, how many adresses was pinged.
   done
   # print in yellow how many addresses was pinged
-  echo -e "${yellow}Scanned $(( (ip) -1 )) adresses${blank}"
+  echo -e "${yellow}Scanned $(( (ip)  )) adresses${blank}"
   count=1
 }
 
@@ -259,6 +259,7 @@ first() {
 # ----------------------------------------------------------------------------------------------------------------------------------
 # Then this must me... The second option
 second() {
+  down=0
   for ip in {1..254}; do
     address="${network%.*}.${ip}"                 # this is to add the 'ip' variable to the "network" varable so we get something like 192.168.20.IP
     ping -c 1 -W 0.1 "${address}" >/dev/null 2>&1 #This is the thingy that pings an address and waits for a response
@@ -271,9 +272,13 @@ second() {
       elif [ ${ip} -lt 255 ] && [ ${ip} -gt 99 ]; then
         echo -e "${address}${red}  [down]${blank}------ ${ip}/254"
       fi
+      ((down += 1))
     fi
   done
-  echo -e "${yellow}Scanned ${ip} adresses${blank}"
+  echo -e "Scanned ${yellow}${ip}${blank} addresses"
+  echo -e "Of which ${yellow}${down}/${ip}${blank} were down"
+  down=0
+  echo ""
 }
 
 # ----------------------------------------------------------------------------------------------------------------------------------
@@ -302,17 +307,17 @@ third() {
 }
 
 # ----------------------------------------------------------------------------------------------------------------------------------
-
 # This is the options menu. Also known as "what" as in What am i gonna do rn.
 what() {
   echo "What do you wish to do?"
   echo "
   1. Show all active IPs
   2. Show all inactive IPs
-  3. Full scan
+  3. Scan range
   4. Exit
   "
-  read -p ">> " choice                 # This uses "-p" for ptomt. so that the string and the input is on the same line
+  echo "enter [1-4]:"
+  read  choice                 # This uses "-p" for ptomt. so that the string and the input is on the same line
   if ! [[ ${choice} =~ ^[1-4] ]]; then # check if the choice is NOT a number between 1 and 3
     clear
     echo -e "${bold}Not an option. Select [1-4]${normal}"
