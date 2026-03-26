@@ -238,21 +238,31 @@ scan() {
 # ----------------------------------------------------------------------------------------------------------------------------------
 # And this is ofc, the first option.
 first() {
+ 
+  # myAddress=$(ip route get 1.1.1.1 | grep -oP "src \K\S+")
+  # addr="${myAddress%.*}.${ip}"
+  # ping -c 1 -W 0.1 "${addr}" >/dev/null 2>&1
+  #
+  # echo -e "${addr}${green}     [up]${blank}--------- ${ip}/254"
+  # echo -e "${addr}${green}    [up]${blank}-------- ${ip}/254"
+  # echo -e "${addr}${green}   [up]${blank}------- ${ip}/254"
+
   up=0
   echo ""
   echo "---------- Getting active IPs on the network ----------"
   echo ""
+  myAddress=$(ip route get 1.1.1.1 | grep -oP "src \K\S+")
   for ip in {1..254}; do
-    address="${network%.*}.${ip}"                 # make a full ip by removing the last set of numbers from your address and replace it with ${ip}
-    ping -c 1 -W 0.1 "${address}" >/dev/null 2>&1 # redirect both stdout and stderr to /dev/null
+    addr="${myAddress%.*}.${ip}"                  # make a full ip by removing the last set of numbers from your address and replace it with ${ip}
+    ping -c 1 -W 0.1 "${addr}" >/dev/null 2>&1    # redirect both stdout and stderr to /dev/null
 
-    if [ $? -eq 0 ]; then # if last task ($?) did not fail aka output IS 0 and not 1 or 2 then echo the address
+    if [ $? -eq 0 ]; then                         # if last task ($?) did not fail aka output IS 0 and not 1 or 2 then echo the address
       if [ ${ip} -lt 10 ]; then
-        echo -e "${address}${green}     [up]${blank}--------- ${ip}/254"
+        echo -e "${addr}${green}     [up]${blank}--------- ${ip}/254"
       elif [ ${ip} -lt 100 ] && [ ${ip} -gt 9 ]; then
-        echo -e "${address}${green}    [up]${blank}-------- ${ip}/254"
+        echo -e "${addr}${green}    [up]${blank}-------- ${ip}/254"
       elif [ ${ip} -lt 255 ] && [ ${ip} -gt 99 ]; then
-        echo -e "${address}${green}   [up]${blank}------- ${ip}/254"
+        echo -e "${addr}${green}   [up]${blank}------- ${ip}/254"
       fi
     fi
     ((up+=1))
@@ -296,7 +306,7 @@ third() {
   sleep 0.5
   echo -e "${network%.*}.${red}1-254${blank}"
   echo -e "Start at:"
-  read from #
+  read from 
   echo -e "Stop at:"
   read to
   if [ $from -gt $to ]; then
