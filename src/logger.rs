@@ -3,6 +3,7 @@ pub struct Message {
 	pub(crate) level: u16,
 }
 
+
 pub fn logger(message: &Message) {
 	match message.level {
 		100 => println!("[INFO]: {}", message.content),
@@ -17,6 +18,8 @@ pub fn logger(message: &Message) {
 		409 => println!("[CONFLICT]: {}", message.content),
 		418 => println!("[I'M A TEAPOT]: {}", message.content),
 		500 => println!("[INTERNAL SERVER ERROR]: {}", message.content),
+		501 => println!("[NOT IMPLEMENTED]: {}", message.content),
+		503 => println!("[SERVICE UNAVAILABLE]: {}", message.content),
 		_ => println!("[UNKNOWN]: {}", message.content),
 	}
 }

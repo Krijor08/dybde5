@@ -20,7 +20,7 @@ use users::{ create_user, get_users, login, update_access_level };
 
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>>{
 	let os_type: String = consts::OS.to_string();
 	let msg: Message = Message {
 		content: format!("Running on OS: {}", os_type),
@@ -34,8 +34,18 @@ async fn main() {
 	};
 	logger(&msg);
 
-	let mut users: Vec<User> = get_users().unwrap();
+	let mut users: Vec<User> = vec![];
 
+	if let Ok(loaded) = get_users() {
+		users = loaded;
+	} else {
+		let msg: Message = Message {
+			content: String::from("Failed to load users from user.json. Starting with an empty user list."),
+			level: 500,
+		};
+		logger(&msg);
+	}
+	
 	let mut current_user: Option<User> = Some(get_users().unwrap()[0].clone());
 
 	loop {
@@ -48,7 +58,7 @@ async fn main() {
 					level: 102,
 				};
 				logger(&msg);
-				return;
+				return Ok(());
 			},
 			
 			"help"	| "h" => help(),
@@ -61,10 +71,6 @@ async fn main() {
 
 			"login"	 | "l" => 	{
 				current_user = Some(login(&users));
-				logger(&Message {
-					content: format!("User '{}' logged in.", current_user.as_ref().unwrap().username),
-					level: 100,
-				});
 			},
 
 			"script" | "s" => {
@@ -73,18 +79,30 @@ async fn main() {
 						content: String::from("Script execution is only supported on Linux."),
 						level: 400,
 					};
-				logger(&msg);
-				return;
+					logger(&msg);
+					return Ok(());
 				}
-				if check_access(current_user.as_ref().unwrap(), 50) {
-					if let Err(e) = run_script().await {
-						let msg: Message = Message {
-							content: format!("Failed to run script: {}", e),
-							level: 500,
-						};
-						logger(&msg);
-					}
+				if !check_access(current_user.as_ref().unwrap(), 50) {
+					logger(&Message {
+						content: String::from("You do not have permission to run scripts."),
+						level: 403,
+					});
+					return Ok(());
 				}
+
+				if let Err(e) = run_script().await {
+					let msg: Message = Message {
+						content: format!("Failed to run script: {}", e),
+						level: 500,
+					};
+					logger(&msg);
+				}
+
+				logger(&Message {
+					content: String::from("Finished running script."),	
+					level: 200,
+				});
+
 			},
 
 			"signup" | "su" => {
@@ -98,13 +116,13 @@ async fn main() {
 				users = get_users().unwrap();
 			},
 
-			"editaccesslevel" | "eal" => {
+			"eal" => {
 				if !check_access(current_user.as_ref().unwrap(), 100) {
 					logger(&Message {
 						content: String::from("You do not have permission to edit access levels."),
 						level: 403,
 					});
-					return;
+					return Ok(());
 				}
 				let target_username: String = input("Enter the username of the user to edit:");
 				let new_access_level: String = input("Enter the new access level (0-100):");
@@ -116,7 +134,7 @@ async fn main() {
 							content: String::from("Invalid access level. Please enter a number between 0 and 100."),
 							level: 400,
 						});
-						return;
+						return Ok(());
 					}
 					};
 				if &level > &current_user.as_ref().unwrap().access_level {
@@ -124,14 +142,14 @@ async fn main() {
 						content: String::from("Cannot set access level higher than your own."),
 						level: 403,
 					});
-					return;
+					return Ok(());
 				}
 				if let Err(e) = update_access_level(&[current_user.as_ref().unwrap().clone()], &target_username, level) {
 					logger(&Message {
 						content: format!("Failed to edit access level: {}", e),
 						level: 500,
 					});
-					return;
+					return Ok(());
 				}
 				logger(&Message {
 					content: format!("Access level for user '{}' updated successfully.", target_username),

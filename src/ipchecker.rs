@@ -1,6 +1,7 @@
 use crate::logger::logger;
 use crate::logger::Message;
 
+
 pub fn ip() {
 	let ip: String = crate::input::input("Enter an IP address to check:");
 
@@ -18,6 +19,7 @@ pub fn ip() {
 		logger(&fail);
 	}
 }
+
 
 pub fn ip_checker(mut ip: String) -> bool {
 	ip = ip.trim().to_string();

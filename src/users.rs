@@ -186,6 +186,7 @@ pub fn login(users: &[User]) -> User {
 	}	
 }
 
+
 pub fn update_access_level(users: &[User], target_username: &str, new_access_level: u8) -> Result<(), &'static str> {
 	let mut all_users = users.to_vec();
 	let mut user_found = false;

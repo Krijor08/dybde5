@@ -2,6 +2,7 @@ use std::io::stdin;
 
 use crate::{logger, Message};
 
+
 pub fn input(prompt: &str) -> String {
 	println!("{}", prompt);
 	let mut input: String = String::new();
