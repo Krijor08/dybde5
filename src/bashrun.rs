@@ -1,14 +1,27 @@
 use std::{ thread, process };
-use std::process::{ Child, ChildStderr, ChildStdout, Command, Stdio as stdio };
+use std::process::{ Child, ChildStderr, ChildStdout, Command, Stdio };
 use std::path::{Path, PathBuf};
 use std::io::{ BufRead, BufReader, Error, ErrorKind, Result };
+use std::env::consts::OS;
 
 use logger::Message;
 use crate::{input, logger};
 use crate::help::script_help;
 
 async fn ls() -> Result<Vec<String>> {
-	let target_dir: &Path = Path::new("scripts");
+	let target_dir: &Path;
+	match OS {
+		"linux" | "macos" => target_dir = Path::new("scripts/bash"),
+		"windows" => target_dir = Path::new("scripts\\ps"),
+		_ => {
+			logger(&Message {
+				content: String::from("Unsupported OS for listing scripts."),
+				level: 400,
+			});
+			return Err(Error::new(ErrorKind::Other, "Unsupported OS"));
+		}
+	}
+	
 
 	let output: process::Output = Command::new("ls")
 		.current_dir(target_dir)
@@ -66,8 +79,8 @@ pub async fn run_script() -> Result<()> {
 
 	let mut child: Child = Command::new("bash")
 		.arg(script_path.display().to_string())
-		.stdout(stdio::piped())
-		.stderr(stdio::piped())
+		.stdout(Stdio::piped())
+		.stderr(Stdio::piped())
 		.spawn()?;
 
 	let stdout: ChildStdout = child.stdout.take().expect("Failed to capture stdout");

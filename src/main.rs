@@ -73,15 +73,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>>{
 				current_user = Some(login(&users));
 			},
 
-			"script" | "s" => {
-				if os_type != "linux" {
-					let msg: Message = Message {
-						content: String::from("Script execution is only supported on Linux."),
-						level: 400,
-					};
-					logger(&msg);
-					return Ok(());
-				}
+			"script" | "s" => {				
 				if !check_access(current_user.as_ref().unwrap(), 50) {
 					logger(&Message {
 						content: String::from("You do not have permission to run scripts."),
