@@ -1,4 +1,4 @@
-mod bashrun;
+mod scriptrun;
 mod help;
 mod input;
 mod ipchecker;
@@ -11,7 +11,7 @@ use logger::Message;
 use std::{env::consts};
 use tokio;
 
-use bashrun::run_script;
+use scriptrun::run_script;
 use help::help;
 use input::input;
 use ipchecker::ip;
