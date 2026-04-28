@@ -1,4 +1,4 @@
-mod bashrun;
+mod scriptrun;
 mod help;
 mod input;
 mod ipchecker;
@@ -11,7 +11,7 @@ use logger::Message;
 use std::{env::consts};
 use tokio;
 
-use bashrun::run_script;
+use scriptrun::run_script;
 use help::help;
 use input::input;
 use ipchecker::ip;
@@ -79,15 +79,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>>{
 						content: String::from("You do not have permission to run scripts."),
 						level: 403,
 					});
-					return Ok(());
+					continue;
 				}
 
 				if let Err(e) = run_script().await {
 					let msg: Message = Message {
-						content: format!("Failed to run script: {}", e),
+						content: format!("Failed to run script: {}. Error type: {:?}", e, e.kind()),
 						level: 500,
 					};
 					logger(&msg);
+					continue;
 				}
 
 				logger(&Message {
@@ -114,7 +115,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>>{
 						content: String::from("You do not have permission to edit access levels."),
 						level: 403,
 					});
-					return Ok(());
+					continue;
 				}
 				let target_username: String = input("Enter the username of the user to edit:");
 				let new_access_level: String = input("Enter the new access level (0-100):");
@@ -126,7 +127,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>>{
 							content: String::from("Invalid access level. Please enter a number between 0 and 100."),
 							level: 400,
 						});
-						return Ok(());
+						continue;
 					}
 					};
 				if &level > &current_user.as_ref().unwrap().access_level {
@@ -134,14 +135,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>>{
 						content: String::from("Cannot set access level higher than your own."),
 						level: 403,
 					});
-					return Ok(());
+					continue;
 				}
 				if let Err(e) = update_access_level(&[current_user.as_ref().unwrap().clone()], &target_username, level) {
 					logger(&Message {
 						content: format!("Failed to edit access level: {}", e),
 						level: 500,
 					});
-					return Ok(());
+					continue;
 				}
 				logger(&Message {
 					content: format!("Access level for user '{}' updated successfully.", target_username),

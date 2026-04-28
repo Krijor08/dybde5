@@ -1,6 +1,6 @@
-use std::{ thread, process };
+use std::{ process, thread };
 use std::process::{ Child, ChildStderr, ChildStdout, Command, Stdio };
-use std::path::{Path, PathBuf};
+use std::path::{Path};
 use std::io::{ BufRead, BufReader, Error, ErrorKind, Result };
 use std::env::consts::OS;
 
@@ -8,33 +8,27 @@ use logger::Message;
 use crate::{input, logger};
 use crate::help::script_help;
 
-async fn ls() -> Result<Vec<String>> {
-	let target_dir: &Path;
-	match OS {
-		"linux" | "macos" => target_dir = Path::new("scripts/bash"),
-		"windows" => target_dir = Path::new("scripts\\ps"),
+
+async fn ls() -> Result<(Vec<String>, String)> {
+	println!("Listing scripts:");
+
+	let target_dir = match OS {
+		"linux" | "macos" => Path::new("scripts/bash"),
+		"windows" => Path::new("scripts/ps"),
 		_ => {
 			logger(&Message {
 				content: String::from("Unsupported OS for listing scripts."),
-				level: 400,
+				level: 503,
 			});
-			return Err(Error::new(ErrorKind::Other, "Unsupported OS"));
+			return Err(Error::new(ErrorKind::Unsupported, "Unsupported OS for listing scripts"));
 		}
-	}
+	};
 	
-
-	let output: process::Output = Command::new("ls")
-		.current_dir(target_dir)
-		.output()?;
-
-	if output.status.success() {
-		let stdout: std::borrow::Cow<'_, str> = String::from_utf8_lossy(&output.stdout);
-		let files: Vec<String> = stdout
-			.lines()
-			.filter(|path| !path.starts_with("."))
-			.map(|line| line
-				.to_string())
-				.collect();
+	let files = std::fs::read_dir(target_dir)?
+		.filter_map(|e: std::result::Result<std::fs::DirEntry, Error>| e.ok())
+		.map(|e: std::fs::DirEntry| e.file_name().to_string_lossy().to_string())
+		.filter(|name: &String| !name.starts_with('.'))
+		.collect::<Vec<String>>();
 			
 
 		logger(&Message {
@@ -42,24 +36,16 @@ async fn ls() -> Result<Vec<String>> {
 			level: 101,
 		});
 
-		Ok(files)
-	} else {
-		let stderr = String::from_utf8_lossy(&output.stderr);
-		logger(&Message {
-			content: format!("Failed to list directory: {}", stderr),
-			level: 400,
-		});
-		Err(Error::new(ErrorKind::Other, "Failed to list directory"))
-	}
+		Ok((files, target_dir.to_string_lossy().to_string()))	
 }
 
 
 pub async fn run_script() -> Result<()> {
-	let paths: Vec<String> = ls().await?;
+	let (files, path) = ls().await?;
 
 	let input: String = input("Enter the name of the script to run (type 'h' for help):");
 
-	let result: (bool, bool) = validate_script_selection(input.clone(), &paths);
+	let result: (bool, bool) = validate_script_selection(input.clone(), &files);
 	let is_valid: bool = result.0;
 	let disappointment: bool = result.1;
 
@@ -75,13 +61,36 @@ pub async fn run_script() -> Result<()> {
 		return Err(Error::new(ErrorKind::PermissionDenied, "User behavior is unacceptable"));
 	}
 
-	let script_path: PathBuf = Path::new("scripts").join(input);
+	let script_path: String = Path::new(&path).join(&input).display().to_string();
 
-	let mut child: Child = Command::new("bash")
-		.arg(script_path.display().to_string())
-		.stdout(Stdio::piped())
-		.stderr(Stdio::piped())
-		.spawn()?;
+	let mut child: Child = match OS {
+		"linux" | "macos" => {
+			Command::new("bash")
+				.arg(script_path)
+				.stdout(Stdio::piped())
+				.stderr(Stdio::piped())
+				.spawn()?
+			
+		},
+		"windows" => {
+			Command::new("powershell")
+				.arg("-ExecutionPolicy")
+				.arg("Bypass")
+				.arg("-File")
+				.arg(script_path)
+				.stdout(Stdio::piped())
+				.stderr(Stdio::piped())
+				.spawn()?
+		},
+		_ => {
+			logger(&Message {
+				content: String::from("Unsupported OS for running scripts."),
+				level: 503,
+			});
+			return Err(Error::new(ErrorKind::Unsupported, "Unsupported OS for running scripts"));
+		}
+	};
+
 
 	let stdout: ChildStdout = child.stdout.take().expect("Failed to capture stdout");
 	let stderr: ChildStderr = child.stderr.take().expect("Failed to capture stderr");
@@ -110,12 +119,7 @@ pub async fn run_script() -> Result<()> {
 
 	stdout_handle.join().expect("Failed to read stdout");
 	stderr_handle.join().expect("Failed to read stderr");
-	if status.success() {
-		logger(&Message {
-			content: String::from("Script executed successfully."),
-			level: 200,
-		});
-	} else {
+	if !status.success() {
 		logger(&Message {
 			content: format!("Script exited with status: {}", status),
 			level: 400,
