@@ -1,4 +1,5 @@
-param ( 
+param (
+	[switch]$verbose,
 	[switch]$yes
 )
 
@@ -6,14 +7,14 @@ class DataSize {
 	[int64]$Bytes
 
 	DataSize([int64]$bytes) {
-		$this.Bytes = $bytes
+		$this.Bytes = [math]::Round($bytes, 0, [System.MidpointRounding]::AwayFromZero)
 	}
 }
-Update-TypeData -TypeName "DataSize" -MemberType ScriptProperty -MemberName KB -Value { $this.Bytes / 1KB } -Force
-Update-TypeData -TypeName "DataSize" -MemberType ScriptProperty -MemberName MB -Value { $this.Bytes / 1MB } -Force
-Update-TypeData -TypeName "DataSize" -MemberType ScriptProperty -MemberName GB -Value { $this.Bytes / 1GB } -Force
-Update-TypeData -TypeName "DataSize" -MemberType ScriptProperty -MemberName TB -Value { $this.Bytes / 1TB } -Force
-Update-TypeData -TypeName "DataSize" -MemberType ScriptProperty -MemberName PB -Value { $this.Bytes / 1PB } -Force
+Update-TypeData -TypeName "DataSize" -MemberType ScriptProperty -MemberName KB -Value { [math]::Round($this.Bytes / 1KB, 2, [System.MidpointRounding]::AwayFromZero) } -Force
+Update-TypeData -TypeName "DataSize" -MemberType ScriptProperty -MemberName MB -Value { [math]::Round($this.Bytes / 1MB, 2, [System.MidpointRounding]::AwayFromZero) } -Force
+Update-TypeData -TypeName "DataSize" -MemberType ScriptProperty -MemberName GB -Value { [math]::Round($this.Bytes / 1GB, 2, [System.MidpointRounding]::AwayFromZero) } -Force
+Update-TypeData -TypeName "DataSize" -MemberType ScriptProperty -MemberName TB -Value { [math]::Round($this.Bytes / 1TB, 2, [System.MidpointRounding]::AwayFromZero) } -Force
+Update-TypeData -TypeName "DataSize" -MemberType ScriptProperty -MemberName PB -Value { [math]::Round($this.Bytes / 1PB, 2, [System.MidpointRounding]::AwayFromZero) } -Force
 
 
 function Get-FolderSize {
@@ -33,21 +34,32 @@ function Remove-Files {
 		[array]$files
 	)
 
-	$confirm = if ($yes) { "N" } else {Read-Host "Require confimation? (Y/N)"}
+	
+	$confirm =	if ($yes) { "N" } else { Read-Host "Require confimation for each file? (Y/N)" }
 
 	$freedSpace = [DataSize]::new(0)
 
 	$tempFolder = (Get-Item $env:TEMP).FullName.TrimEnd('\')
+	if ($verbose) {
+		Write-Host "Verbose mode enabled."
+		Write-Host "Temp folder: $tempFolder"
+	}
 
 	foreach ($file in $files) {
 		if ($confirm.ToUpper() -ne "N") {
 			Write-Host "Processing file: $($file.FullName)"
-			Write-Host "Temp folder: $tempFolder"
 			$deleteConfirm = Read-Host "Delete this file? (Y/N)"
-			if ($deleteConfirm.ToUpper() -ne "Y") {
+			if ($deleteConfirm.ToUpper() -ne "Y" -and $deleteConfirm.ToUpper() -ne "A") {
 				Write-Host "Skipping file: $($file.FullName)"
 				continue
 			}	
+		}
+
+		if ($deleteConfirm.ToUpper() -eq "A") {
+			Write-Host "Auto-confirm enabled. Deleting file: $($file.FullName)"
+			$confirm = "N"
+			$deleteConfirm = "N"
+			continue
 		}
 
 		if ($null -eq $file.FullName) {
@@ -71,17 +83,44 @@ function Remove-Files {
 			$freedSpace.Bytes += $file.Length
 		} catch [System.IO.IOException] {
 			Write-Host "Skipping file in use: $($file.FullName)"
+			if ($verbose) {
+				Write-Host "Error: $_ Type: $($_.GetType().FullName)"
+				Read-Host "Press Enter to continue..."
+			}
 			continue
 		} catch [System.ArgumentException] {
 			Write-Host "Skipping file with invalid path: $($file.FullName)"
+			if ($verbose) {
+				Write-Host "Error: $_ Type: $($_.GetType().FullName)"
+				Read-Host "Press Enter to continue..."
+			}
 			continue
 		}
 		catch {
-			Write-Host "Failed to delete: $($file.FullName). Error: $_"
+			Write-Host "Failed to delete: $($file.FullName)."
+			if ($verbose) {
+				Write-Host "Error: $_ Type: $($_.GetType().FullName)"
+				Read-Host "Press Enter to continue..."
+			}
 			continue
 		}
 	}
-	Write-Host "Total space freed:`n$($freedSpace.Bytes) bytes, $($freedSpace.KB) KB, $($freedSpace.MB) MB"
+
+	switch ($freedSpace.Bytes) {
+		0 { Write-Host "No space freed."}
+		{$_ -gt 1000000000} { 
+			Write-Host "Freed space: $($freedSpace.GB) GB ($($freedSpace.Bytes) bytes)"
+			break
+		}
+		{$_ -gt 1000000} { 
+			Write-Host "Freed space: $($freedSpace.MB) MB ($($freedSpace.Bytes) bytes)"
+			break
+		}
+		{$_ -gt 1000} { 
+			Write-Host "Freed space: $($freedSpace.KB) KB ($($freedSpace.Bytes) bytes)"
+		}
+		default { Write-Host "Freed space: $($freedSpace.Bytes) bytes" }
+	}
 }
 
 
@@ -95,33 +134,66 @@ function Test-Paths {
 
 }
 
+
 #==================================================#
 # - - - - - - -  Here  begins  main  - - - - - - - #
 #==================================================#
 
-
+if ($verbose -and $yes) {
+	Write-Host "Damn."
+	exit
+}
 
 $files = Get-ChildItem -Path "$env:TEMP" -Recurse -File -ErrorAction SilentlyContinue
 
 $totalSize = [DataSize]::new(0)
 $totalSize.Bytes = Get-FolderSize -Path "$env:TEMP"
 
-
 if ($files.Count -eq 0) {
 	Write-Host "No files found in the temp directory."
 	exit
 }
 
+$randomFile = $files | Get-Random
+$randomFileSize = [DataSize]::new(0)
+$randomFileSize.Bytes = $randomFile.Length
+
+if ($verbose) {
+	Write-Host "File count: $($files.Count)"
+	Write-Host "Files: $($files | ForEach-Object { $_.FullName })"
+	Write-Host "Random file: $($randomFile.FullName) (Size: $($randomFileSize.KB) KB)"
+}
+
 if ($yes) {
-	Write-Host "Auto-confirm enabled. Deleting files without confirmation."
+	Write-Host "Auto-confirm enabled. Deleting files without confirmation or information."
 	Remove-Files -files $files
 	Write-Host "All files in the temp directory have been processed."
 	exit
 }
 
-$randomFile = $files | Get-Random
+switch ($totalSize.Bytes) {
+	0 { 
+		Write-Host "Only empty files found in the temp directory." 
+		exit 
+	}
+	{ $_ -gt 0.9GB } { 
+		Write-Host "Found $(($files.Count)) files in the temp directory, taking up $($totalSize.GB) GB ($($totalSize.KB) KB)" 
+		break 
+	}
+	{ $_ -gt 0.9MB } { 
+		Write-Host "Found $(($files.Count)) files in the temp directory, taking up $($totalSize.MB) MB ($($totalSize.Bytes) bytes)" 
+		break 
+	}
+	{ $_ -gt 0.9KB } { 
+		Write-Host "Found $(($files.Count)) files in the temp directory, taking up $($totalSize.KB) KB ($($totalSize.Bytes) bytes)" 
+	}
+	default { 
+		Write-Host "Found $(($files.Count)) files in the temp directory, taking up $($totalSize.Bytes) bytes"
+	}
+}
 
-Write-Host "Found $($files.Count) files in the temp directory, taking up $($totalSize.Bytes) bytes.`nA random file is: $($randomFile).`nWould you like to delete them? (Y/N)"
+Write-Host "Example file: $($randomFile.FullName) (Size: $($randomFileSize.KB) KB)"
+Write-Host "Delete all temp files? (Y/N)"
 $response = Read-Host
 
 $loop = 1
@@ -147,4 +219,3 @@ while ($loop -gt 0) {
 		}
 	}
 }
-
