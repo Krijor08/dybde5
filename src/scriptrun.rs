@@ -13,8 +13,8 @@ async fn ls() -> Result<(Vec<String>, String)> {
 	println!("Listing scripts:");
 
 	let target_dir = match OS {
-		"linux" | "macos" => Path::new("scripts/bash"),
-		"windows" => Path::new("scripts/ps"),
+		"linux" | "macos" => Path::new("Scripts/bash"),
+		"windows" => Path::new("Scripts/ps"),
 		_ => {
 			logger(&Message {
 				content: String::from("Unsupported OS for listing scripts."),
