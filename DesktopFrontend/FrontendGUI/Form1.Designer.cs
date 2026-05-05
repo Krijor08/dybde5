@@ -1,4 +1,7 @@
-﻿namespace FrontendGUI;
+﻿using System.Drawing;
+using System.Windows.Forms;
+
+namespace FrontendGUI;
 
 partial class Form1
 {
